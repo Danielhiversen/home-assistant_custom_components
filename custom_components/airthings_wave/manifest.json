@@ -1,0 +1,10 @@
+{
+  "domain": "airthings_wave",
+  "name": "Airthings Wave",
+  "documentation": "https://github.com/custom-components/sensor.__/",
+  "dependencies": [],
+  "codeowners": ["@danielhiversen"],
+  "requirements": [
+    "pygatt[GATTTOOL]==4.0.5"
+  ]
+}
