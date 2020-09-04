@@ -1,6 +1,6 @@
 # Home-assistant custom_components
 
-Custom components for using in Home Assistant:
+Custom components to use with Home Assistant:
 
 - [Adax](custom_components/adax/)
 - [Airthings wave](custom_components/airthings_wave/)
