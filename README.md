@@ -1,4 +1,4 @@
-# home-assistant_custom_components
+# Home-assistant custom_components
 
 Custom components for using in Home Assistant:
 
