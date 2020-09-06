@@ -6,19 +6,19 @@ import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
 from homeassistant.components.climate import ClimateDevice, PLATFORM_SCHEMA
 from homeassistant.components.climate.const import SUPPORT_TARGET_TEMPERATURE, HVAC_MODE_OFF, HVAC_MODE_HEAT
-from homeassistant.const import (CONF_CLIENT_ID, CONF_CLIENT_SECRET, TEMP_CELSIUS, ATTR_TEMPERATURE, PRECISION_WHOLE)
+from homeassistant.const import (CONF_PASSWORD, TEMP_CELSIUS, ATTR_TEMPERATURE, PRECISION_WHOLE)
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
-    {vol.Required(CONF_CLIENT_ID): cv.string, vol.Required(CONF_CLIENT_SECRET): cv.string}
+    {vol.Required("account_id"): cv.string, vol.Required(CONF_PASSWORD): cv.string}
 )
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Adax thermostat."""
-    client_id = config[CONF_CLIENT_ID]
-    client_secret = config[CONF_CLIENT_SECRET]
+    client_id = config["account_id"]
+    client_secret = config[CONF_PASSWORD]
 
     adax_data_handler = Adax(client_id, client_secret)
 
@@ -121,9 +121,9 @@ API_URL = "https://api-1.adax.no/client-api"
 
 
 class Adax:
-    def __init__(self, client_id, client_secret):
-        self._client_id=client_id
-        self._client_secret=client_secret
+    def __init__(self, account_id, password):
+        self._account_id = account_id
+        self._password = password
         self._oauth_client = None
         self._rooms = []
         self._last_updated = datetime.datetime.utcnow() - datetime.timedelta(hours=2)
@@ -158,7 +158,7 @@ class Adax:
             self._oauth_client = sanction.Client(token_endpoint=API_URL + '/auth/token')
 
         if self._oauth_client.access_token is None:
-            self._oauth_client.request_token(grant_type='password', username=self._client_id, password=self._client_secret)
+            self._oauth_client.request_token(grant_type='password', username=self._account_id, password=self._password)
 
         headers = {"Authorization": f"Bearer {self._oauth_client.access_token}"}
         response = None
