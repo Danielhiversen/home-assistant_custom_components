@@ -141,8 +141,8 @@ class Adax:
 
     def set_room_target_temperature(self, room_id, temperature):
         """Sets target temperature of the room."""
-        json = {'rooms': [{ 'id': room_id, 'targetTemperature': str(temperature)}]}
-        self._request(API_URL + '/rest/v1/control/', json_data=json)
+        json_data = {'rooms': [{ 'id': room_id, 'targetTemperature': str(int(temperature*100))}]}
+        self._request(API_URL + '/rest/v1/control/', json_data=json_data)
 
     def fetch_rooms_info(self):
         """Get rooms info"""
