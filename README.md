@@ -2,7 +2,7 @@
 
 Custom components to use with Home Assistant:
 
-- [Adax](custom_components/adax/)
+- [Adax](https://github.com/Danielhiversen/home_assistant_adax)
 - [Airthings wave](custom_components/airthings_wave/)
 - [Dlink](custom_components/dlink/)
 - [Min renovasjon](custom_components/min_renovasjon/)
