@@ -2,7 +2,7 @@
   "domain": "adax",
   "name": "Adax",
   "documentation": "https://www.home-assistant.io/integrations/__",
-  "requirements": ["requests", "sanction"],
+  "requirements": ["requests"],
   "codeowners": ["@danielhiversen"],
   "config_flow": false
 }
