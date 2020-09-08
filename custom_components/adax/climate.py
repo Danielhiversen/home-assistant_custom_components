@@ -56,14 +56,28 @@ class AdaxDevice(ClimateDevice):
         """Return hvac operation ie. heat, cool mode.
         Need to be one of HVAC_MODE_*.
         """
-        return HVAC_MODE_HEAT
+        if self._heater_data['heatingEnabled']:
+            return HVAC_MODE_HEAT
+        else:
+            return HVAC_MODE_OFF
 
     @property
     def hvac_modes(self):
         """Return the list of available hvac operation modes.
         Need to be a subset of HVAC_MODES.
         """
-        return [HVAC_MODE_HEAT]
+        return [HVAC_MODE_HEAT, HVAC_MODE_OFF]
+
+    def set_hvac_mode(self, hvac_mode):
+        """Set hvac mode."""
+        if hvac_mode == HVAC_MODE_HEAT:
+            temperature = max(self.min_temp, self._heater_data.get('targetTemperature', self.min_temp))
+            self._adax_data_handler.set_room_target_temperature(self._heater_data['id'], temperature, True)
+        elif hvac_mode == HVAC_MODE_OFF:
+            self._adax_data_handler.set_room_target_temperature(self._heater_data['id'], self.min_temp, False)
+        else:
+            return
+        self._adax_data_handler.update(force_update=True)
 
     @property
     def temperature_unit(self):
@@ -100,7 +114,7 @@ class AdaxDevice(ClimateDevice):
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature is None:
             return
-        self._adax_data_handler.set_room_target_temperature(self._heater_data['id'], temperature)
+        self._adax_data_handler.set_room_target_temperature(self._heater_data['id'], temperature, True)
         self._adax_data_handler.update(force_update=True)
 
     def update(self):
@@ -114,7 +128,6 @@ class AdaxDevice(ClimateDevice):
 ######
 import datetime
 import requests
-import sanction
 
 
 API_URL = "https://api-1.adax.no/client-api"
@@ -124,7 +137,7 @@ class Adax:
     def __init__(self, account_id, password):
         self._account_id = account_id
         self._password = password
-        self._oauth_client = None
+        self._access_token = None
         self._rooms = []
         self._last_updated = datetime.datetime.utcnow() - datetime.timedelta(hours=2)
 
@@ -134,33 +147,39 @@ class Adax:
 
     def update(self, force_update=False):
         now = datetime.datetime.utcnow()
-        if now - self._last_updated < datetime.timedelta(minutes=30) and not force_update:
+        if now - self._last_updated < datetime.timedelta(seconds=30) and not force_update:
+            print("skip update")
             return
         self._last_updated = now
         self.fetch_rooms_info()
 
-    def set_room_target_temperature(self, room_id, temperature):
+    def set_room_target_temperature(self, room_id, temperature, heating_enabled):
         """Sets target temperature of the room."""
-        json_data = {'rooms': [{ 'id': room_id, 'targetTemperature': str(int(temperature*100))}]}
+        json_data = {'rooms': [{'id': room_id,
+                                'heatingEnabled': heating_enabled,
+                                'targetTemperature': str(int(temperature*100))}]}
         self._request(API_URL + '/rest/v1/control/', json_data=json_data)
 
     def fetch_rooms_info(self):
         """Get rooms info"""
         response = self._request(API_URL + "/rest/v1/content/")
         json_data = response.json()
-        self._rooms =  json_data['rooms']
+        self._rooms = json_data['rooms']
         for room in self._rooms:
-            room['targetTemperature'] = room['targetTemperature'] / 100.0
+            room['targetTemperature'] = room.get('targetTemperature', 0) / 100.0
             room['temperature'] = room.get('temperature', 0) / 100.0
 
     def _request(self, url, json_data=None, retry=2):
-        if self._oauth_client is None:
-            self._oauth_client = sanction.Client(token_endpoint=API_URL + '/auth/token')
+        if self._access_token is None:
+            response = requests.post(f"{API_URL}/auth/token",
+                                     headers={'Content-type': 'application/x-www-form-urlencoded',
+                                              'Accept': 'application/json'},
+                                     data={'grant_type': 'password',
+                                           'username': self._account_id,
+                                           'password': self._password})
+            self._access_token = response.json().get('access_token')
 
-        if self._oauth_client.access_token is None:
-            self._oauth_client.request_token(grant_type='password', username=self._account_id, password=self._password)
-
-        headers = {"Authorization": f"Bearer {self._oauth_client.access_token}"}
+        headers = {"Authorization": f"Bearer {self._access_token}"}
         response = None
         try:
             if json_data:
@@ -172,6 +191,6 @@ class Adax:
             if retry < 1:
                 raise
         if (response is None or response.status_code >= 300) and retry > 0:
-            self._oauth_client = None
+            self._access_token = None
             return self._request(url, json_data, retry=retry - 1)
         return response
