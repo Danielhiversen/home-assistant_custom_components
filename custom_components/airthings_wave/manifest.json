@@ -4,6 +4,7 @@
   "documentation": "https://github.com/custom-components/sensor.__/",
   "dependencies": [],
   "codeowners": ["@danielhiversen"],
+  "version": "0.1",
   "requirements": [
     "pygatt[GATTTOOL]==4.0.5"
   ]
