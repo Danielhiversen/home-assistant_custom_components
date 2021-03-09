@@ -6,7 +6,7 @@ Custom components to use with Home Assistant:
 - [Airthings wave cloud](https://github.com/Danielhiversen/home_assistant_airthings_cloud)
 - [Airthings wave BT](custom_components/airthings_wave/)
 - [Dlink](custom_components/dlink/)
-- [Min renovasjon](custom_components/min_renovasjon/)
+- [Min renovasjon](https://github.com/Danielhiversen/home_assistant_min_renovasjon)
 - [Netgear reboot](custom_components/netgear_reboot.py)
 - [Tibber custom](https://github.com/Danielhiversen/home_assistant_tibber_custom)
 - [Tractive](https://github.com/Danielhiversen/home_assistant_tractive)
