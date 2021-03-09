@@ -8,6 +8,7 @@ Custom components to use with Home Assistant:
 - [Dlink](custom_components/dlink/)
 - [Min renovasjon](https://github.com/Danielhiversen/home_assistant_min_renovasjon)
 - [Netgear reboot](custom_components/netgear_reboot.py)
+- [Sure Petcare](https://github.com/Danielhiversen/home_assistant_petcare)
 - [Tibber custom](https://github.com/Danielhiversen/home_assistant_tibber_custom)
 - [Tractive](https://github.com/Danielhiversen/home_assistant_tractive)
 - [Weather data, old yr.no](https://github.com/Danielhiversen/home_assistant_weather_data)
